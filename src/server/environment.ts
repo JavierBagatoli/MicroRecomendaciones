@@ -18,7 +18,7 @@ export function getConfig(environment: any): Config {
     config = {
       port: process.env.SERVER_PORT || "3003",
       logLevel: process.env.LOG_LEVEL || "debug",
-      mongoDb: process.env.MONGO_URL || "mongodb://localhost/cart",
+      mongoDb: process.env.MONGO_URL || "mongodb://localhost/gustos",
       securityServer: process.env.AUTH_SERVICE_URL || "http://localhost:3000",
       catalogServer: process.env.CATALOG_SERVICE_URL || "http://localhost:3002",
       rabbitUrl: process.env.RABBIT_URL || "amqp://localhost"

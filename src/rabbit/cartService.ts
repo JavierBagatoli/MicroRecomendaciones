@@ -10,6 +10,8 @@ import { RabbitDirectEmitter } from "./tools/directEmitter";
 import { IRabbitMessage } from "./tools/common";
 import { ICart } from "../cart/schema";
 import { RabbitTopicConsumer } from "./tools/topicConsumer";
+import incrementarGusto, { IEtiquetaMessage } from "../personaGustos/incrementarGusto";
+import DejarDeRecomendarArticulo from "../personaGustos/dejarDeRecomendarArticulo";
 
 interface IArticleExistMessage {
     referenceId: string;
@@ -22,7 +24,15 @@ interface IOrderPlacedMessage {
 }
 
 export function init() {
-    const cart = new RabbitDirectConsumer("cart", "cart");
+    const incrementarEtiqueta = new RabbitDirectConsumer("mr_incremento", "mr_incremento");
+    incrementarEtiqueta.addProcessor("IncrementarEtiqueta", processEtiqueta);
+    incrementarEtiqueta.init();
+
+    const noRecomendarArticulo = new RabbitDirectConsumer("mr_decremento", "mr_decremento");
+    noRecomendarArticulo.addProcessor("noRecomendarArticulo", processNoRecomendarEtiqueta);
+    noRecomendarArticulo.init();
+
+    const cart = new RabbitDirectConsumer("mr_incremento", "cart");
     cart.addProcessor("article-exist", processArticleExist);
     cart.init();
 
@@ -50,6 +60,18 @@ export function init() {
 function processArticleExist(rabbitMessage: IRabbitMessage) {
     const article = rabbitMessage.message as IArticleExistMessage;
     validation.articleValidationCheck(article);
+}
+
+function processEtiqueta(rabbitMessage: IRabbitMessage) {
+    console.log("Llegan etiquetas");
+    const etiqueta = rabbitMessage.message as IEtiquetaMessage;
+    incrementarGusto(etiqueta);
+}
+
+function processNoRecomendarEtiqueta(rabbitMessage: IRabbitMessage) {
+    console.log("Llegan etiquetas");
+    const etiqueta = rabbitMessage.message as IEtiquetaMessage;
+// DejarDeRecomendarArticulo(etiqueta);
 }
 
 /**

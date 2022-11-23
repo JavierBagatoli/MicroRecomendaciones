@@ -4,6 +4,8 @@
  *  Servicios de escucha de eventos rabbit
  */
 import amqp = require("amqplib");
+import DejarDeRecomendarArticulo from "../../personaGustos/dejarDeRecomendarArticulo";
+import incrementarGusto from "../../personaGustos/incrementarGusto";
 import * as env from "../../server/environment";
 import { RabbitProcessor, IRabbitMessage } from "./common";
 
@@ -38,16 +40,24 @@ export class RabbitDirectConsumer {
 
             const exchange = await channel.assertExchange(this.exchange, "direct", { durable: false });
 
-            const queue = await channel.assertQueue(this.queue, { durable: false });
+            const queue = await channel.assertQueue(this.queue, { durable: false});
 
-            channel.bindQueue(queue.queue, exchange.exchange, queue.queue);
+            channel.bindQueue(queue.queue, queue.queue, exchange.exchange); // di vuelta queue y exchange
 
             channel.consume(queue.queue,
                 (message) => {
-                    const rabbitMessage: IRabbitMessage = JSON.parse(message.content.toString());
-                    if (this.processors.has(rabbitMessage.type)) {
-                        this.processors.get(rabbitMessage.type)(rabbitMessage);
+                    const rabbitMessage = JSON.parse(message.content.toString());
+                    const objEtiqueta = {idUsuario: rabbitMessage.idUsuario, etiqueta: rabbitMessage.etiqueta};
+                    const tipo = rabbitMessage.type;
+                    if (tipo === "Incremento") {
+                        incrementarGusto(rabbitMessage);
+                    } else if (tipo === "NoRecomendar") {
+                        DejarDeRecomendarArticulo(rabbitMessage);
                     }
+
+// if (this.processors.has(rabbitMessage.type)) {
+//  this.processors.get(rabbitMessage.type)(rabbitMessage);
+// }
                 }, { noAck: true });
         } catch (err) {
             console.error("RabbitMQ " + this.exchange + " " + err.message);
