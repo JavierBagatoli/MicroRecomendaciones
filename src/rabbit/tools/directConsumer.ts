@@ -50,8 +50,10 @@ export class RabbitDirectConsumer {
                     const objEtiqueta = {idUsuario: rabbitMessage.idUsuario, etiqueta: rabbitMessage.etiqueta};
                     const tipo = rabbitMessage.type;
                     if (tipo === "Incremento") {
+                        console.log("Se proceso el incremento");
                         incrementarGusto(rabbitMessage);
                     } else if (tipo === "NoRecomendar") {
+                        console.log("Se proceso el de dejar de recomendar");
                         DejarDeRecomendarArticulo(rabbitMessage);
                     }
 

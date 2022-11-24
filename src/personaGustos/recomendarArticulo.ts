@@ -7,7 +7,7 @@ const recomendarArticulo = () => async(req: any , res: any) => {
         let etiqueta2: IGustoEtiqueta = {etiqueta: "", contador: 0};
         let etiqueta3: IGustoEtiqueta = {etiqueta: "", contador: 0};
         const personaGusto = await PersonaGusto.findOne({idUsuario : idUsuario});
-
+        console.log("Persona encontrada" + personaGusto);
         personaGusto.gustosEtiquetas.map((etiqueta: IGustoEtiqueta) => {
             if (Number (etiqueta.contador) > etiqueta1.contador) {
                 etiqueta3 = etiqueta2;
